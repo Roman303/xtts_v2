@@ -7,6 +7,11 @@ LABEL maintainer="deinname <dein.email@example.com>"
 # Arbeitsverzeichnis
 WORKDIR /workspace
 
+# Coqui-TTS klonen und installieren
+RUN git clone --depth 1 https://github.com/coqui-ai/TTS.git /workspace/TTS
+WORKDIR /workspace/TTS
+RUN pip install -e .
+
 # Systemtools
 RUN apt-get update && apt-get install -y \
     git ffmpeg sox libsndfile1 build-essential wget ca-certificates \
@@ -37,3 +42,4 @@ COPY configs/xtts_v2_adapter.json /workspace/configs/xtts_v2_adapter.json
 # Optional: kleines Entrypoint-Skript (führt bash als default)
 WORKDIR /workspace
 CMD [ "/bin/bash" ]
+
