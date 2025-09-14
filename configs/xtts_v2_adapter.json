@@ -1,0 +1,40 @@
+{
+  "model": "xtts_v2",
+  "run_name": "my_voice_clone",
+  "batch_size": 4,
+  "eval_batch_size": 4,
+  "num_loader_workers": 2,
+  "num_eval_loader_workers": 2,
+  "epochs": 100,
+  "text_cleaner": "multilingual_cleaners",
+  "use_phonemes": false,
+  "phoneme_language": "de",
+  "phoneme_cache_path": "/workspace/output_adaptation/phoneme_cache",
+  "output_path": "/workspace/output_adaptation",
+
+  "audio": {
+    "sample_rate": 24000,
+    "channels": 1,
+    "fft_size": 1024,
+    "hop_length": 256,
+    "win_length": 1024,
+    "mel_fmin": 0,
+    "mel_fmax": 8000
+  },
+
+  "data": {
+    "datasets": [
+      {
+        "name": "my_voice",
+        "path": "/workspace/data/speaker1"
+      }
+    ]
+  },
+
+  "training": {
+    "optimizer": "adam",
+    "learning_rate": 0.0001,
+    "grad_clip": 1.0,
+    "mixed_precision": true
+  }
+}
