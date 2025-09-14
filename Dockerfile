@@ -1,5 +1,5 @@
 # Basis: offizielles PyTorch mit CUDA 12.8 (enthält torch & torchaudio kompatibel)
-FROM pytorch/pytorch:2.5.1-cuda12.8-cudnn9-runtime
+FROM pytorch/pytorch:2.5.1-cuda12.1-cudnn9-runtime
 
 # Meta
 LABEL maintainer="deinname <dein.email@example.com>"
@@ -42,4 +42,5 @@ COPY configs/xtts_v2_adapter.json /workspace/configs/xtts_v2_adapter.json
 # Optional: kleines Entrypoint-Skript (führt bash als default)
 WORKDIR /workspace
 CMD [ "/bin/bash" ]
+
 
