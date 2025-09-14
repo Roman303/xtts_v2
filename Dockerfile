@@ -29,5 +29,8 @@ RUN mkdir -p /workspace/data/speaker1 \
     && mkdir -p /workspace/data/speaker2 \
     && mkdir -p /workspace/data/speaker3
 
+COPY data/ /workspace/data/
+
 # Standard-Startbefehl: Bash
 CMD ["/bin/bash"]
+
