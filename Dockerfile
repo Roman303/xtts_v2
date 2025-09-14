@@ -1,46 +1,33 @@
-# Basis: offizielles PyTorch mit CUDA 12.8 (enthält torch & torchaudio kompatibel)
-FROM pytorch/pytorch:2.5.1-cuda12.1-cudnn9-runtime
+# NVIDIA PyTorch Image mit Python 3.10 und CUDA
+FROM nvcr.io/nvidia/pytorch:24.01-py3
 
-# Meta
-LABEL maintainer="deinname <dein.email@example.com>"
+# Systempakete installieren
+RUN apt-get update && apt-get install -y \
+    git wget ffmpeg sox libsox-dev libsox-fmt-all && \
+    rm -rf /var/lib/apt/lists/*
+
+# Python 3.10 erzwingen (falls das Image etwas Neueres mitbringt)
+RUN apt-get update && apt-get install -y python3.10 python3.10-venv python3.10-dev && \
+    update-alternatives --install /usr/bin/python3 python3 /usr/bin/python3.10 1 && \
+    update-alternatives --install /usr/bin/python python /usr/bin/python3.10 1
 
 # Arbeitsverzeichnis
 WORKDIR /workspace
 
 # Coqui-TTS klonen und installieren
-RUN git clone --depth 1 https://github.com/coqui-ai/TTS.git /workspace/TTS
-WORKDIR /workspace/TTS
-RUN pip install -e .
+RUN git clone https://github.com/coqui-ai/TTS.git && \
+    cd TTS && \
+    pip install -e .
 
-# Systemtools
-RUN apt-get update && apt-get install -y \
-    git ffmpeg sox libsndfile1 build-essential wget ca-certificates \
-    && rm -rf /var/lib/apt/lists/*
+# Configs-Verzeichnis vorbereiten
+RUN mkdir -p /workspace/configs && \
+    wget https://raw.githubusercontent.com/coqui-ai/TTS/main/TTS/configs/xtts_v2_adapter.json \
+    -O /workspace/configs/xtts_v2_adapter.json
 
-# Pip Upgrade und Fixes
-RUN pip install --upgrade pip setuptools wheel
+# Datenstruktur für Sprecher anlegen
+RUN mkdir -p /workspace/data/speaker1 \
+    && mkdir -p /workspace/data/speaker2 \
+    && mkdir -p /workspace/data/speaker3
 
-# Cython Version (Coqui TTS braucht 0.29.x)
-RUN pip install cython==0.29.36
-
-# Coqui-TTS klonen und installieren
-RUN git clone --depth 1 https://github.com/coqui-ai/TTS.git /workspace/TTS
-WORKDIR /workspace/TTS
-# Installiere TTS (nutzt bereits im Image vorhandene torch/torchaudio)
-RUN pip install -e .
-
-# Zusätzliche Python-Pakete nützlich für Audio/Preproc
-RUN pip install soundfile librosa fsspec
-
-# Erstelle Standardordner
-RUN mkdir -p /workspace/data /workspace/configs /workspace/output_adaptation /workspace/samples
-
-# Kopiere die Config in das Image (falls vorhanden im Repo)
-# Wenn du die Config in GitHub liegen hast, wird COPY sie übernehmen.
-COPY configs/xtts_v2_adapter.json /workspace/configs/xtts_v2_adapter.json
-
-# Optional: kleines Entrypoint-Skript (führt bash als default)
-WORKDIR /workspace
-CMD [ "/bin/bash" ]
-
-
+# Standard-Startbefehl: Bash
+CMD ["/bin/bash"]
