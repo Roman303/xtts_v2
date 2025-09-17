@@ -5,7 +5,7 @@ import os
 # Falls beim ersten Mal der Download zu lange dauert:
 # -> Modell vorher mit wget von HuggingFace holen und in /workspace/models speichern
 print("🔄 Lade Modell XTTS-v2 ...")
-tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2", gpu=True)
+tts = TTS("/workspace/output_adaptation/best_model.pth", gpu=True)
 
 # Pfade
 speaker_wav = "/workspace/data/speaker1/voice.wav"
