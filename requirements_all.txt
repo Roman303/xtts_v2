@@ -1,15 +1,12 @@
+# requirements_all.txt - KORRIGIERTE VERSION
+
 # --- Grundpakete ---
 numpy>=1.23.0
 scipy>=1.11.0
 numba>=0.57.0
 
-# --- PyTorch Ecosystem ---
-torch==2.1.0
-torchvision==0.15.2
-torchaudio==2.1.2
-
 # --- XTTS / Coqui-TTS ---
-TTS==0.22.0
+# TTS wird bereits aus dem Git-Repo installiert, aber diese sind seine Abhängigkeiten
 anyascii>=0.3.0
 encodec>=0.1.1
 flask>=2.0.1
