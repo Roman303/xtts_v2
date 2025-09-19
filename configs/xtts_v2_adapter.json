@@ -16,7 +16,9 @@
     "win_length": 1024,
     "fft_size": 1024,
     "mel_fmin": 0,
-    "mel_fmax": 8000
+    "mel_fmax": 8000,
+    "num_mels": 80,
+    "dvae_sample_rate": 24000
   },
   "run_name": "xtts_v2_speaker3",
   "project_name": "XTTS_FT",
@@ -49,7 +51,6 @@
   "save_n_checkpoints": 2,
   "save_checkpoints": true,
   "save_all_best": true,
-  "save_best_after": 5000,
   "target_loss": "loss",
   "print_eval": false,
   "test_delay_epochs": 0,
