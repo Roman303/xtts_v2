@@ -23,6 +23,11 @@
     "num_mels": 80,
     "dvae_sample_rate": 24000
   },
+  "test_sentences": [
+    ["Dies ist ein Test mit der angepassten Stimme.", "speaker3", "de", null],
+    ["Die Qualität sollte jetzt deutlich besser sein.", "speaker3", "de", null],
+    ["Nach dem Training klingt die Stimme natürlicher.", "speaker3", "de", null]
+  ],
   "run_name": "xtts_v2_speaker3",
   "project_name": "XTTS_FT",
   "output_path": "/workspace/xtts_v2/outputs/",
