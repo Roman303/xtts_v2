@@ -1,31 +1,17 @@
-# requirements_all.txt - KORRIGIERTE VERSION
-
-# --- Grundpakete ---
-numpy>=1.23.0
-scipy>=1.11.0
-numba>=0.57.0
-
-# --- XTTS / Coqui-TTS ---
-# TTS wird bereits aus dem Git-Repo installiert, aber diese sind seine Abhängigkeiten
+numpy==1.23.0
+numba==0.57.0
+torch==2.1.1
+torchvision==0.16.1
+torchaudio==2.1.1
 anyascii>=0.3.0
 encodec>=0.1.1
 flask>=2.0.1
 g2pkk>=0.1.1
-gruut==2.2.3
+gruut==2.4.0
 inflect>=5.6.0
 transformers>=4.33.0
 umap-learn>=0.5.1
 scikit-learn>=1.3.0
+scipy>=1.11.0
 librosa>=0.10.0
 soundfile>=0.12.1
-
-# --- Für Mistral (HuggingFace) ---
-accelerate>=0.21.0
-bitsandbytes>=0.41.0
-sentencepiece
-protobuf
-
-# --- Für Stable Diffusion ---
-diffusers>=0.20.0
-xformers
-safetensors
