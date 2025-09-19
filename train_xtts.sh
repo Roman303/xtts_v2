@@ -94,6 +94,9 @@ config = XttsConfig(
     enable_redaction=False,
     kv_cache=True,
     gpt_use_perceiver_resampler=True,
+    voice_cloning=True,
+    voice_cloning_loss_weight=0.5,
+    speaker_encoder_loss_weight=0.1,
     
     # Audio Config
     audio=dict(
@@ -152,7 +155,7 @@ config = XttsConfig(
     dashboard_logger="tensorboard",
     
     # Fine-Tuning specific
-    text_cleaner="multilingual_cleaners",
+    text_cleaner="german_cleaners",
     use_phonemes=False,  # Für deutsches Fine-Tuning
     phoneme_language="de",
     compute_input_seq_cache=False,
