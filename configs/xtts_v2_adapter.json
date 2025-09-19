@@ -7,7 +7,10 @@
     "gpt_checkpoint": null,
     "clvp_checkpoint": null,
     "decoder_checkpoint": null,
-    "num_chars": 255
+    "num_chars": 255,
+    "voice_cloning": true,
+    "voice_cloning_loss_weight": 0.5,
+    "speaker_encoder_loss_weight": 0.1
   },
   "audio": {
     "sample_rate": 24000,
@@ -81,5 +84,7 @@
   "gpu": 0,
   "use_phonemes": false,
   "phoneme_language": "de",
+  "text_cleaner": "german_cleaners",
+  "phonemizer": "gruut",
   "save_best_after": 1000
 }
