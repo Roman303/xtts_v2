@@ -55,7 +55,7 @@ fi
 
 # 8) TTS installieren
 echo "🔧 Installiere Coqui TTS..."
-pip install -e .[all]
+pip install coqui-tts==0.26.0
 
 # 9) Gefilterte Requirements installieren
 cd ${PROJECT_DIR}
