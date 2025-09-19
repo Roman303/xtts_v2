@@ -59,9 +59,11 @@ pip install -e .[all]
 
 # 9) Gefilterte Requirements installieren
 cd ${PROJECT_DIR}
-# Korrigiere numpy Version für numba Kompatibilität und füge zusätzliche Deps hinzu
+# Korrigiere Versionen für Kompatibilität
 if [ -f "requirements_all.txt" ]; then
-  grep -v "coqui-tts" requirements_all.txt | sed 's/numpy==1.26.4/numpy==1.24.4/' > requirements_filtered.txt
+  grep -v "coqui-tts" requirements_all.txt > requirements_filtered.txt
+  sed -i 's/numpy==1.26.4/numpy==1.26.4/' requirements_filtered.txt  # Kompatibel mit coqui-tts 0.27.1
+  sed -i 's/librosa==0.10.1/librosa==0.11.0/' requirements_filtered.txt  # Kompatibel mit coqui-tts 0.27.1
   echo "tensorboard>=2.11.0" >> requirements_filtered.txt  # Für Logging
   echo "deepspeed>=0.10.0" >> requirements_filtered.txt   # Für optionale Beschleunigung
   pip install -r requirements_filtered.txt
