@@ -32,7 +32,7 @@ git pull
 pip install -e .[all]
 
 # 6) Kompatible Versionen von numpy & numba fixieren
-pip install --upgrade numpy==1.26.4 numba==0.58.1
+pip install --upgrade numpy==1.26.4 numba==0.58.1 transformers==4.33.3
 
 # 7) Zusätzliche Anforderungen aus deinem Repo
 cd /workspace/my-voice-project
