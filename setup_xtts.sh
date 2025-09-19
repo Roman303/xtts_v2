@@ -15,9 +15,12 @@ sudo apt-get update -qq && sudo apt-get install -y \
   python3.10 python3.10-venv python3.10-dev \
   && rm -rf /var/lib/apt/lists/*
 
-# 2) Projektverzeichnis erstellen
+# 2) Projektverzeichnis prüfen
 cd ${WORKSPACE}
-mkdir -p ${PROJECT_DIR}
+if [ ! -d "xtts_v2" ]; then
+  echo "❌ Projektverzeichnis ${PROJECT_DIR} nicht gefunden! Bitte zuerst git clone https://github.com/Roman303/xtts_v2.git ausführen."
+  exit 1
+fi
 cd ${PROJECT_DIR}
 
 # 3) Virtuelle Umgebung erstellen (Python 3.10)
@@ -34,11 +37,11 @@ pip install --upgrade pip setuptools wheel
 echo "🔥 Installiere PyTorch für RTX 4090..."
 pip install torch==2.1.1 torchvision==0.16.1 torchaudio==2.1.1 --index-url https://download.pytorch.org/whl/cu121
 
-# 6) Transformers Version installieren (kompatibel mit PyTorch 2.1.1) :cite[2]:cite[9]
+# 6) Transformers Version installieren (kompatibel mit PyTorch 2.1.1)
 echo "🔄 Installiere kompatible Transformers Version..."
 pip install transformers==4.35.2
 
-# 7) Coqui TTS Repository klonen (Community Fork) :cite[1]
+# 7) Coqui TTS Repository klonen (Community Fork)
 cd ${WORKSPACE}
 if [ ! -d "TTS" ]; then
   echo "📚 Klone Coqui TTS Repository..."
@@ -56,9 +59,16 @@ pip install -e .[all]
 
 # 9) Gefilterte Requirements installieren
 cd ${PROJECT_DIR}
-# Korrigiere numpy Version für numba Kompatibilität
-grep -v "coqui-tts" requirements_all.txt | sed 's/numpy==1.26.4/numpy==1.24.4/' > requirements_filtered.txt
-pip install -r requirements_filtered.txt
+# Korrigiere numpy Version für numba Kompatibilität und füge zusätzliche Deps hinzu
+if [ -f "requirements_all.txt" ]; then
+  grep -v "coqui-tts" requirements_all.txt | sed 's/numpy==1.26.4/numpy==1.24.4/' > requirements_filtered.txt
+  echo "tensorboard>=2.11.0" >> requirements_filtered.txt  # Für Logging
+  echo "deepspeed>=0.10.0" >> requirements_filtered.txt   # Für optionale Beschleunigung
+  pip install -r requirements_filtered.txt
+else
+  echo "❌ requirements_all.txt nicht gefunden! Bitte sicherstellen, dass es im ${PROJECT_DIR} liegt."
+  exit 1
+fi
 
 # 10) Verzeichnisstruktur erstellen
 echo "📁 Erstelle Verzeichnisstruktur..."
@@ -67,8 +77,9 @@ mkdir -p ${PROJECT_DIR}/configs
 mkdir -p ${PROJECT_DIR}/outputs/checkpoints
 mkdir -p ${PROJECT_DIR}/outputs/audio
 mkdir -p ${PROJECT_DIR}/outputs/logs
+mkdir -p ${PROJECT_DIR}/scripts  # Für zukünftige Automationsskripte
 
-# 11) XTTS v2 Modell testen :cite[6]
+# 11) XTTS v2 Modell testen
 echo "⬇️ Teste XTTS v2 Modellladung..."
 python -c "
 from TTS.api import TTS
@@ -89,5 +100,5 @@ echo "
 ━━━━━━━━━━━━━━━━━━━━━
 Aktiviere Environment: source ${PROJECT_DIR}/venv/bin/activate
 Trainingsdaten vorbereiten: ${PROJECT_DIR}/data/speaker3/
-Starte Training: python train_xtts.py
+Starte Training: bash train_xtts.sh
 "
