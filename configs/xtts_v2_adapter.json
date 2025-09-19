@@ -77,5 +77,8 @@
   "use_tb": true,
   "use_wandb": false,
   "restore_path": null,
-  "gpu": 0
+  "gpu": 0,
+  "use_phonemes": false,
+  "phoneme_language": "de",
+  "save_best_after": 1000
 }
