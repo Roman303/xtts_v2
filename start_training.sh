@@ -3,7 +3,7 @@ set -e
 
 echo "🔹 Starte Setup für XTTS v2 Voice Cloning..."
 
-# 1) System-Pakete (falls nicht vorhanden)
+# 1) System-Pakete installieren (falls nicht vorhanden)
 sudo apt-get update -qq && sudo apt-get install -y \
   git wget ffmpeg sox libsox-dev libsox-fmt-all \
   python3.11 python3.11-venv python3.11-dev \
@@ -15,9 +15,6 @@ if [ ! -d "tts-env" ]; then
   python3.11 -m venv tts-env
 fi
 source tts-env/bin/activate
-
-# 2b) Coqui Lizenz automatisch akzeptieren
-export COQUI_TOS_AGREED=1
 
 # 3) Pip upgraden
 pip install --upgrade pip setuptools wheel
@@ -34,12 +31,13 @@ git checkout main
 git pull
 pip install -e .[all]
 
-# 6) Zurück ins Repo (dein Projekt)
-cd /workspace/my-voice-project
+# 6) Kompatible Versionen von numpy & numba fixieren
+pip install --upgrade numpy==1.26.4 numba==0.58.1
 
-# 7) Anforderungen aus Repo installieren
-if [ -f "requirements.txt" ]; then
-  pip install -r requirements.txt
+# 7) Zusätzliche Anforderungen aus deinem Repo
+cd /workspace/my-voice-project
+if [ -f "requirements_all.txt" ]; then
+  pip install -r requirements_all.txt
 fi
 
 # 8) Daten und Configs ins Workspace kopieren
@@ -53,14 +51,17 @@ if [ -d "configs" ]; then
   cp -r configs/* /workspace/configs/
 fi
 
-# 9) Testlauf
+# 9) Lizenz automatisch akzeptieren
+export COQUI_TOS_AGREED=1
+
+# 🔟 Testlauf
 python - <<'EOF'
 import torch
 from TTS.api import TTS
 print("✅ PyTorch:", torch.__version__, "CUDA:", torch.cuda.is_available())
 print("✅ TTS Version:", __import__('TTS').__version__)
 tts = TTS("tts_models/multilingual/multi-dataset/xtts_v2", gpu=True)
-print("✅ XTTS v2 geladen!")
+print("✅ XTTS v2 geladen und Lizenz akzeptiert!")
 EOF
 
 echo "🎉 Setup abgeschlossen! Aktiviere die venv mit:"
