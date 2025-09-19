@@ -4,8 +4,8 @@ set -e
 echo "🔹 Starte XTTS v2 Voice Cloning Training..."
 
 # 1) Virtuelle Umgebung aktivieren
-if [ -f "/workspace/tts-env/bin/activate" ]; then
-  source /workspace/tts-env/bin/activate
+if [ -f "/workspace/my-voice-project/tts-env/bin/activate" ]; then
+  source /workspace/my-voice-project/tts-env/bin/activate
 else
   echo "❌ Virtuelle Umgebung nicht gefunden. Bitte zuerst start_training.sh ausführen!"
   exit 1
