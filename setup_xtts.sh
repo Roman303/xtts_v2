@@ -35,11 +35,11 @@ pip install --upgrade pip setuptools wheel
 
 # 5) PyTorch mit CUDA 12.1 installieren (für RTX 4090 optimiert)
 echo "🔥 Installiere PyTorch für RTX 4090..."
-pip install torch==2.1.1 torchvision==0.16.1 torchaudio==2.1.1 --index-url https://download.pytorch.org/whl/cu121
+pip install torch==2.2.1 torchvision==0.17.1 torchaudio==2.2.1 --index-url https://download.pytorch.org/whl/cu121
 
 # 6) Transformers Version installieren (kompatibel mit PyTorch 2.1.1)
 echo "🔄 Installiere kompatible Transformers Version..."
-pip install transformers==4.35.2 tokenizers==0.15.0
+pip install transformers==4.35.2 "numpy>=1.25.2,<2.0" tokenizers==0.15.0
 
 # 7) Coqui TTS Repository klonen (Community Fork)
 cd ${WORKSPACE}
@@ -63,6 +63,8 @@ if [ -f "requirements_all.txt" ]; then
   grep -v "coqui-tts" requirements_all.txt > requirements_filtered.txt
   echo "tensorboard>=2.11.0" >> requirements_filtered.txt
   echo "deepspeed>=0.10.0" >> requirements_filtered.txt
+  grep -v "numpy" requirements_all.txt > requirements_filtered.txt
+  echo "numpy>=1.25.2,<2.0" >> requirements_filtered.txt
   pip install -r requirements_filtered.txt
 else
   echo "❌ requirements_all.txt nicht gefunden! Bitte sicherstellen, dass es im ${PROJECT_DIR} liegt."
