@@ -35,7 +35,7 @@ processed_csv = output_dir / "metadata.csv"
 with open(csv_path, 'r', encoding='utf-8') as infile, \
      open(processed_csv, 'w', encoding='utf-8', newline='') as outfile:
     
-    reader = csv.DictReader(infile, delimiter='|')
+    reader = csv.DictReader(infile, delimiter='|') 
     writer = csv.writer(outfile, delimiter='|')
     writer.writerow(['audio_file', 'text', 'speaker_name'])
     
@@ -184,6 +184,7 @@ print(f"📊 Evaluierungs-Samples: {len(eval_samples)}")
 
 # Model initialisieren
 model = Xtts.init_from_config(config)
+torch.backends.cuda.matmul.allow_tf32 = True  # RTX 4090 Optimierung
 
 # Checkpoint laden (Basis XTTS v2 Model)
 XTTS_CHECKPOINT = Path.home() / ".local/share/tts/tts_models--multilingual--multi-dataset--xtts_v2"
@@ -293,6 +294,9 @@ model.to(device)
 
 # Referenz-Audio für Voice Cloning
 reference_audio = "/workspace/xtts_v2/data/speaker3/audio_001.wav"
+if not Path(reference_audio).exists():
+    print(f"❌ Referenz-Audio nicht gefunden: {reference_audio}")
+    exit(1)
 
 # Test-Texte
 test_texts = [
@@ -337,19 +341,25 @@ echo "
 │  XTTS v2 FINE-TUNING TRAINING           │
 ├─────────────────────────────────────────┤
 │  [1] Daten-Preprocessing                │
-│  [2] Fine-Tuning Training               │
-│  [3] Test der angepassten Stimme        │
+│  [2] Vollständiges Fine-Tuning (empfohlen)│
+│  [3] Nur Testen (wenn Training fertig)  │
+│  [4] Schnelltest ohne Fine-Tuning       │
 └─────────────────────────────────────────┘
 "
 
 # Optionen für den Benutzer
-echo "Wähle eine Option:"
-echo "1) Nur Preprocessing"
-echo "2) Vollständiges Fine-Tuning (empfohlen)"
-echo "3) Nur Testen (wenn Training fertig)"
-echo "4) Schnelltest ohne Fine-Tuning"
-
-read -p "Option [1-4]: " option
+while true; do
+    echo "Wähle eine Option:"
+    echo "1) Nur Preprocessing"
+    echo "2) Vollständiges Fine-Tuning (empfohlen)"
+    echo "3) Nur Testen (wenn Training fertig)"
+    echo "4) Schnelltest ohne Fine-Tuning"
+    read -p "Option [1-4]: " option
+    case $option in
+        1|2|3|4) break ;;
+        *) echo "Ungültige Option, bitte 1-4 wählen" ;;
+    esac
+done
 
 case $option in
     1)
@@ -386,10 +396,6 @@ if os.path.exists(ref_audio):
 else:
     print('❌ Referenz-Audio nicht gefunden!')
 "
-        ;;
-    *)
-        echo "Ungültige Option"
-        exit 1
         ;;
 esac
 
