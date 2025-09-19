@@ -31,7 +31,7 @@ git checkout main
 git pull
 pip install -e .[all]
 
-# 6) Zusätzliche Anforderungen aus requirements.txt
+# 6) Zusätzliche Anforderungen aus requirements_all.txt
 cd /workspace
 pip install -r requirements.txt
 
