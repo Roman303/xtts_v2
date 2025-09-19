@@ -67,10 +67,8 @@ python preprocess_data.py
 # 2. Fine-Tuning Training Script
 cat > train_xtts_finetuning.py <<'PYTHON'
 import os
-import sys
 import json
 import torch
-import numpy as np
 from pathlib import Path
 from trainer import Trainer, TrainerArgs
 from TTS.config.shared_configs import BaseDatasetConfig
@@ -79,97 +77,20 @@ from TTS.tts.configs.xtts_config import XttsConfig
 from TTS.tts.models.xtts import Xtts
 from TTS.utils.audio import AudioProcessor
 
-# Konfiguration
-OUTPUT_PATH = Path("/workspace/xtts_v2/outputs/finetuning")
-OUTPUT_PATH.mkdir(parents=True, exist_ok=True)
+# Lade Konfiguration aus JSON
+CONFIG_PATH = "/workspace/xtts_v2/configs/xtts_v2_adapter.json"
+print(f"📋 Lade Konfiguration von: {CONFIG_PATH}")
 
-# XTTS Config erstellen
-config = XttsConfig(
-    output_path=str(OUTPUT_PATH),
-    
-    # Model parameters
-    model="xtts",
-    num_chars=255,
-    gpt_batch_size=2,  # Reduziert für Fine-Tuning
-    enable_redaction=False,
-    kv_cache=True,
-    gpt_use_perceiver_resampler=True,
-    voice_cloning=True,
-    voice_cloning_loss_weight=0.5,
-    speaker_encoder_loss_weight=0.1,
-    
-    # Audio Config
-    audio=dict(
-        sample_rate=24000,
-        dvae_sample_rate=24000,
-        output_sample_rate=24000,
-        hop_length=256,
-        win_length=1024,
-        fft_size=1024,
-        mel_fmin=0,
-        mel_fmax=8000,
-        num_mels=80,
-    ),
-    
-    # Dataset Config
-    datasets=[
-        BaseDatasetConfig(
-            formatter="ljspeech",
-            dataset_name="speaker3_ft",
-            path="/workspace/xtts_v2/data/",
-            meta_file_train="/workspace/xtts_v2/outputs/preprocessed/metadata.csv",
-            language="de",
-        )
-    ],
-    
-    # Training Parameters
-    batch_size=2,  # Klein für Fine-Tuning
-    eval_batch_size=1,
-    num_loader_workers=4,
-    num_eval_loader_workers=2,
-    precompute_num_workers=4,
-    
-    # Training Schedule
-    epochs=15,  # Mehr Epochs für Fine-Tuning
-    lr=5e-5,  # Niedrigere Learning Rate
-    lr_scheduler="CosineAnnealingLR",
-    lr_scheduler_params={"T_max": 15, "eta_min": 1e-6},
-    optimizer="AdamW",
-    optimizer_params={"betas": [0.9, 0.96], "eps": 1e-8, "weight_decay": 0.01},
-    
-    # Gradient & Precision
-    grad_clip=1.0,
-    mixed_precision=True,
-    
-    # Checkpointing
-    save_step=500,
-    save_n_checkpoints=3,
-    save_best_after=0,
-    run_eval=True,
-    run_eval_steps=500,
-    
-    # Logging
-    print_step=50,
-    print_eval=True,
-    log_model_step=500,
-    dashboard_logger="tensorboard",
-    
-    # Fine-Tuning specific
-    text_cleaner="german_cleaners",
-    use_phonemes=False,  # Für deutsches Fine-Tuning
-    phoneme_language="de",
-    compute_input_seq_cache=False,
-    compute_linear_spec=False,
-    precompute_num_workers=0,
-    start_by_longest=True,
-    
-    # Test sentences
-    test_sentences=[
-        ["Dies ist ein Test mit der angepassten Stimme.", "speaker3", "de", None],
-        ["Die Qualität sollte jetzt deutlich besser sein.", "speaker3", "de", None],
-        ["Nach dem Training klingt die Stimme natürlicher.", "speaker3", "de", None],
-    ],
-)
+with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
+    config_data = json.load(f)
+
+# Erstelle XTTS Config
+config = XttsConfig()
+config.from_dict(config_data)  # Lädt alle Werte aus der JSON
+
+# Überschreibe pfadspezifische Einstellungen
+config.output_path = "/workspace/xtts_v2/outputs/finetuning"
+config.datasets[0].meta_file_train = "/workspace/xtts_v2/outputs/preprocessed/metadata.csv"
 
 # Audio Processor
 ap = AudioProcessor.init_from_config(config)
