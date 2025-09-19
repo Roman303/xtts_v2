@@ -1,39 +1,81 @@
 {
-  "model": "XTTSAdapter",
-  "run_name": "my_voice_clone",
-  "batch_size": 4,
-  "eval_batch_size": 4,
-  "num_loader_workers": 2,
-  "num_eval_loader_workers": 2,
-  "epochs": 10,
-  "text_cleaner": "multilingual_cleaners",
-  "use_phonemes": false,
-  "phoneme_language": "de",
-  "phoneme_cache_path": "/workspace/output_adaptation/phoneme_cache",
-  "output_path": "/workspace/output_adaptation",
+  "model": "xtts",
+  "model_args": {
+    "gpt_batch_size": 2,
+    "enable_redaction": false,
+    "kv_cache": true,
+    "gpt_checkpoint": null,
+    "clvp_checkpoint": null,
+    "decoder_checkpoint": null,
+    "num_chars": 255
+  },
   "audio": {
     "sample_rate": 24000,
-    "channels": 1,
-    "fft_size": 1024,
+    "output_sample_rate": 24000,
     "hop_length": 256,
     "win_length": 1024,
+    "fft_size": 1024,
     "mel_fmin": 0,
     "mel_fmax": 8000
   },
-  "data": {
-    "datasets": [
-      {
-        "name": "my_voice",
-        "path": "/workspace/data/speaker3",
-        "meta_file_train": "/workspace/data/speakers_all.csv"
-      }
-    ]
+  "run_name": "xtts_v2_speaker3",
+  "project_name": "XTTS_FT",
+  "output_path": "/workspace/xtts_v2/outputs/",
+  "datasets": [
+    {
+      "formatter": "ljspeech",
+      "dataset_name": "speaker3_dataset",
+      "path": "/workspace/xtts_v2/data/",
+      "meta_file_train": "speakers_all.csv",
+      "meta_file_val": null,
+      "language": "de"
+    }
+  ],
+  "test_sentences": [
+    ["Dies ist ein Test der geklonten Stimme.", "speaker3", "de"],
+    ["Die Sprachqualität sollte sehr natürlich klingen.", "speaker3", "de"]
+  ],
+  "batch_size": 2,
+  "batch_group_size": 4,
+  "eval_batch_size": 2,
+  "num_loader_workers": 2,
+  "num_eval_loader_workers": 2,
+  "precompute_num_workers": 2,
+  "epochs": 10,
+  "print_step": 50,
+  "plot_step": 100,
+  "log_model_step": 500,
+  "save_step": 1000,
+  "save_n_checkpoints": 2,
+  "save_checkpoints": true,
+  "save_all_best": true,
+  "save_best_after": 5000,
+  "target_loss": "loss",
+  "print_eval": false,
+  "test_delay_epochs": 0,
+  "run_eval": true,
+  "run_eval_steps": 500,
+  "distributed_backend": "nccl",
+  "distributed_url": "tcp://localhost:54321",
+  "mixed_precision": true,
+  "precision": "fp16",
+  "grad_clip": 1.0,
+  "grad_accum_steps": 1,
+  "lr": 5e-5,
+  "optimizer": "AdamW",
+  "optimizer_params": {
+    "betas": [0.9, 0.96],
+    "eps": 1e-8,
+    "weight_decay": 0.01
   },
-  "training": {
-    "optimizer": "adam",
-    "learning_rate": 0.0001,
-    "grad_clip": 1.0,
-    "mixed_precision": true
+  "lr_scheduler": "MultiStepLR",
+  "lr_scheduler_params": {
+    "milestones": [5000, 10000, 15000],
+    "gamma": 0.5,
+    "last_epoch": -1
   },
-  "restore_path": "tts_models/multilingual/multi-dataset/xtts_v2"
+  "use_tb": true,
+  "use_wandb": false,
+  "restore_path": null,
+  "gpu": 0
 }
