@@ -39,7 +39,7 @@ pip install torch==2.1.1 torchvision==0.16.1 torchaudio==2.1.1 --index-url https
 
 # 6) Transformers Version installieren (kompatibel mit PyTorch 2.1.1)
 echo "🔄 Installiere kompatible Transformers Version..."
-pip install transformers==4.35.2
+pip install transformers==4.35.2 tokenizers==0.15.0
 
 # 7) Coqui TTS Repository klonen (Community Fork)
 cd ${WORKSPACE}
