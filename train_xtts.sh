@@ -187,7 +187,7 @@ model = Xtts.init_from_config(config)
 torch.backends.cuda.matmul.allow_tf32 = True  # RTX 4090 Optimierung
 
 # Checkpoint laden (Basis XTTS v2 Model)
-XTTS_CHECKPOINT = Path.home() / ".local/share/tts/tts_models--multilingual--multi-dataset--xtts_v2"
+XTTS_CHECKPOINT = Path("/root/.local/share/tts/tts_models--multilingual--multi-dataset--xtts_v2")
 if not XTTS_CHECKPOINT.exists():
     print("⬇️ Lade XTTS v2 Basis-Modell...")
     from TTS.api import TTS
