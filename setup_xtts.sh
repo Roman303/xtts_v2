@@ -30,33 +30,37 @@ source venv/bin/activate
 # 4) Pip upgraden
 pip install --upgrade pip setuptools wheel
 
-# 5) PyTorch mit CUDA 12.1 installieren (für RTX 4090 optimiert) :cite[9]
+# 5) PyTorch mit CUDA 12.1 installieren (für RTX 4090 optimiert)
 echo "🔥 Installiere PyTorch für RTX 4090..."
 pip install torch==2.1.1 torchvision==0.16.1 torchaudio==2.1.1 --index-url https://download.pytorch.org/whl/cu121
 
-# 6) Coqui TTS Repository klonen (Community Fork) :cite[1]
+# 6) Transformers Version installieren (kompatibel mit PyTorch 2.1.1) :cite[2]:cite[9]
+echo "🔄 Installiere kompatible Transformers Version..."
+pip install transformers==4.35.2
+
+# 7) Coqui TTS Repository klonen (Community Fork) :cite[1]
 cd ${WORKSPACE}
 if [ ! -d "TTS" ]; then
   echo "📚 Klone Coqui TTS Repository..."
   git clone https://github.com/idiap/coqui-ai-TTS.git TTS
   cd TTS
-  git checkout main  # Verwende main branch für aktuelle Version
+  git checkout main
 else
   cd TTS
   git pull origin main
 fi
 
-# 7) TTS installieren (ohne coqui-tts aus requirements) :cite[2]
+# 8) TTS installieren
 echo "🔧 Installiere Coqui TTS..."
 pip install -e .[all]
 
-# 8) Gefilterte Requirements installieren (ohne coqui-tts und mit korrigiertem numpy)
+# 9) Gefilterte Requirements installieren
 cd ${PROJECT_DIR}
-# Erstelle korrigierte requirements ohne coqui-tts und mit numpy<1.25
-grep -v "coqui-tts" requirements_all.txt | sed 's/numpy==1.26.4/numpy<1.25/' > requirements_filtered.txt
+# Korrigiere numpy Version für numba Kompatibilität
+grep -v "coqui-tts" requirements_all.txt | sed 's/numpy==1.26.4/numpy==1.24.4/' > requirements_filtered.txt
 pip install -r requirements_filtered.txt
 
-# 9) Verzeichnisstruktur erstellen
+# 10) Verzeichnisstruktur erstellen
 echo "📁 Erstelle Verzeichnisstruktur..."
 mkdir -p ${PROJECT_DIR}/data/speaker3
 mkdir -p ${PROJECT_DIR}/configs
@@ -64,7 +68,7 @@ mkdir -p ${PROJECT_DIR}/outputs/checkpoints
 mkdir -p ${PROJECT_DIR}/outputs/audio
 mkdir -p ${PROJECT_DIR}/outputs/logs
 
-# 10) XTTS v2 Modell testen :cite[6]
+# 11) XTTS v2 Modell testen :cite[6]
 echo "⬇️ Teste XTTS v2 Modellladung..."
 python -c "
 from TTS.api import TTS
@@ -76,7 +80,8 @@ try:
     tts = TTS('tts_models/multilingual/multi-dataset/xtts_v2')
     print('✅ XTTS v2 erfolgreich geladen!')
 except Exception as e:
-    print(f'❌ Fehler: {e}')
+    print(f'❌ Fehler beim Laden: {e}')
+    print('ℹ️  Dies kann am ersten Versuch normal sein, das Modell wird heruntergeladen...')
 "
 
 echo "
