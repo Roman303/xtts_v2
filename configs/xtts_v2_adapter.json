@@ -1,11 +1,11 @@
 {
-  "model": "xtts_v2",
+  "model": "XTTSAdapter",
   "run_name": "my_voice_clone",
   "batch_size": 4,
   "eval_batch_size": 4,
   "num_loader_workers": 2,
   "num_eval_loader_workers": 2,
-  "epochs": 10,  // Reduziert von 100 auf 10 für schnelleres Testen
+  "epochs": 10,
   "text_cleaner": "multilingual_cleaners",
   "use_phonemes": false,
   "phoneme_language": "de",
@@ -24,7 +24,7 @@
     "datasets": [
       {
         "name": "my_voice",
-        "path": "/workspace/data/speaker1",
+        "path": "/workspace/data/speaker3",
         "meta_file_train": "/workspace/data/speakers_all.csv"
       }
     ]
