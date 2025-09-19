@@ -1,8 +1,5 @@
 numpy==1.23.0
 numba==0.57.0
-torch==2.1.1
-torchvision==0.16.1
-torchaudio==2.1.1
 anyascii>=0.3.0
 encodec>=0.1.1
 flask>=2.0.1
