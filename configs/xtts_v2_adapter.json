@@ -43,10 +43,6 @@
       "language": "de"
     }
   ],
-  "test_sentences": [
-    ["Dies ist ein Test der geklonten Stimme.", "speaker3", "de"],
-    ["Die Sprachqualität sollte sehr natürlich klingen.", "speaker3", "de"]
-  ],
   "batch_size": 2,
   "batch_group_size": 4,
   "eval_batch_size": 2,
@@ -94,5 +90,5 @@
   "text_cleaner": "german_cleaners",
   "phonemizer": "gruut",
   "save_best_after": 1000,
-  "eval_split_size": 0.0357  // Neu: Für kleine Datasets (1 Eval-Sample bei 27 Total)
+  "eval_split_size": 0.0357
 }
