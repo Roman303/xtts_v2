@@ -41,10 +41,6 @@
       "language": "de"
     }
   ],
-  "test_sentences": [
-    ["Dies ist ein Test der geklonten Stimme.", "speaker3", "de"],
-    ["Die Sprachqualität sollte sehr natürlich klingen.", "speaker3", "de"]
-  ],
   "batch_size": 2,
   "batch_group_size": 4,
   "eval_batch_size": 2,
