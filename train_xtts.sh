@@ -86,19 +86,21 @@ with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
 
 # Erstelle XTTS Config
 config = XttsConfig()
-config.from_dict(config_data)  # Lädt alle Werte aus der JSON
+config.from_dict(config_data)
+
+# Fallback für eval_split_size
+if not hasattr(config, 'eval_split_size') or config.eval_split_size is None:
+    config.eval_split_size = 0.0357
+print("Debug: eval_split_size:", config.eval_split_size)
 
 # Debug: Überprüfe geladene Audio-Config
 print("Debug: Geladene Audio Config:", config.audio.__dict__ if hasattr(config.audio, '__dict__') else config.audio)
-
-# Debug: Überprüfe eval_split_size
-print("Debug: eval_split_size:", config.eval_split_size)
 
 # Überschreibe pfadspezifische Einstellungen
 config.output_path = "/workspace/xtts_v2/outputs/finetuning"
 config.datasets[0].meta_file_train = "/workspace/xtts_v2/outputs/preprocessed/metadata.csv"
 
-# Audio Processor direkt initialisieren (um TypeError zu umgehen)
+# Audio Processor direkt initialisieren
 ap = AudioProcessor(
     sample_rate=24000,
     output_sample_rate=24000,
@@ -119,7 +121,7 @@ train_samples, eval_samples = load_tts_samples(
     config.datasets,
     eval_split=True,
     eval_split_max_size=config.eval_split_max_size,
-    eval_split_size=config.eval_split_size  // Verwende den Wert aus JSON
+    eval_split_size=config.eval_split_size
 )
 
 print(f"📊 Trainings-Samples: {len(train_samples)}")
@@ -127,9 +129,9 @@ print(f"📊 Evaluierungs-Samples: {len(eval_samples)}")
 
 # Model initialisieren
 model = Xtts.init_from_config(config)
-torch.backends.cuda.matmul.allow_tf32 = True  # RTX 4090 Optimierung
+torch.backends.cuda.matmul.allow_tf32 = True
 
-# Checkpoint laden (Basis XTTS v2 Model)
+# Checkpoint laden
 XTTS_CHECKPOINT = Path("/root/.local/share/tts/tts_models--multilingual--multi-dataset--xtts_v2")
 if not XTTS_CHECKPOINT.exists():
     print("⬇️ Lade XTTS v2 Basis-Modell...")
@@ -148,11 +150,10 @@ model.load_checkpoint(
     use_deepspeed=False
 )
 
-# Nur bestimmte Layer für Fine-Tuning freigeben
+# Layer für Fine-Tuning freigeben
 print("🔓 Aktiviere Fine-Tuning Layer...")
 for name, param in model.named_parameters():
-    # Freeze alles außer den letzten GPT Layern und Speaker Embedding
-    if "gpt" in name and "layer_30" in name:  # Letzte Layer
+    if "gpt" in name and "layer_30" in name:
         param.requires_grad = True
     elif "gpt" in name and "layer_29" in name:
         param.requires_grad = True
@@ -163,17 +164,16 @@ for name, param in model.named_parameters():
     else:
         param.requires_grad = False
 
-# Zähle trainierbare Parameter
 trainable_params = sum(p.numel() for p in model.parameters() if p.requires_grad)
 total_params = sum(p.numel() for p in model.parameters())
 print(f"🎯 Trainierbare Parameter: {trainable_params:,} / {total_params:,} ({100*trainable_params/total_params:.2f}%)")
 
 # Trainer Args
 trainer_args = TrainerArgs(
-    restore_path=None,  # Kein Restore, wir haben das Model schon geladen
+    restore_path=None,
     skip_train_epoch=False,
     start_with_eval=True,
-    grad_accum_steps=4,  # Gradient Accumulation für größere effektive Batch Size
+    grad_accum_steps=4
 )
 
 # Trainer initialisieren
@@ -183,7 +183,7 @@ trainer = Trainer(
     config.output_path,
     model=model,
     train_samples=train_samples,
-    eval_samples=eval_samples,
+    eval_samples=eval_samples
 )
 
 # Training starten
@@ -195,7 +195,7 @@ print("\n✅ Fine-Tuning abgeschlossen!")
 print(f"📁 Checkpoints gespeichert in: {config.output_path}")
 PYTHON
 
-# 3. Inference Test Script (unverändert, aber mit Debug)
+# 3. Inference Test Script
 cat > test_finetuned_model.py <<'PYTHON'
 import torch
 import torchaudio
@@ -205,7 +205,6 @@ from TTS.tts.models.xtts import Xtts
 
 print("🎤 Teste fine-getunte Stimme...")
 
-# Neuestes Checkpoint finden
 checkpoint_dir = Path("/workspace/xtts_v2/outputs/finetuning")
 checkpoints = sorted(checkpoint_dir.glob("*/best_model.pth"))
 
@@ -216,11 +215,9 @@ if not checkpoints:
 latest_checkpoint = checkpoints[-1].parent
 print(f"📦 Verwende Checkpoint: {latest_checkpoint}")
 
-# Config laden
 config = XttsConfig()
 config.load_json(str(latest_checkpoint / "config.json"))
 
-# Model laden
 model = Xtts.init_from_config(config)
 model.load_checkpoint(
     config,
@@ -231,24 +228,20 @@ model.load_checkpoint(
     use_deepspeed=False
 )
 
-# GPU verwenden
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 model.to(device)
 
-# Referenz-Audio für Voice Cloning
 reference_audio = "/workspace/xtts_v2/data/speaker3/audio_001.wav"
 if not Path(reference_audio).exists():
     print(f"❌ Referenz-Audio nicht gefunden: {reference_audio}")
     exit(1)
 
-# Test-Texte
 test_texts = [
     "Nach dem Fine-Tuning klingt meine Stimme viel natürlicher.",
     "Die Anpassung an meine Sprechweise ist deutlich besser geworden.",
-    "Jetzt kann ich längere Hörbücher mit meiner eigenen Stimme erstellen.",
+    "Jetzt kann ich längere Hörbücher mit meiner eigenen Stimme erstellen."
 ]
 
-# Generiere Audio
 for i, text in enumerate(test_texts, 1):
     print(f"🔊 Generiere: {text[:50]}...")
     
@@ -263,10 +256,9 @@ for i, text in enumerate(test_texts, 1):
         length_penalty=1.0,
         repetition_penalty=2.0,
         top_k=50,
-        top_p=0.85,
+        top_p=0.85
     )
     
-    # Speichere Audio
     output_path = f"/workspace/xtts_v2/outputs/audio/finetuned_test_{i}.wav"
     torchaudio.save(
         output_path,
@@ -290,7 +282,6 @@ echo "
 └─────────────────────────────────────────┘
 "
 
-# Optionen für den Benutzer
 while true; do
     echo "Wähle eine Option:"
     echo "1) Nur Preprocessing"
@@ -317,7 +308,6 @@ case $option in
         python test_finetuned_model.py
         ;;
     4)
-        # Schnelltest mit Basis-Modell
         python -c "
 import torch
 from TTS.api import TTS
@@ -341,22 +331,12 @@ else:
         ;;
 esac
 
-# Monitoring-Befehle anzeigen
 echo "
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 📊 Monitoring-Befehle:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-GPU-Auslastung:
-  watch -n 1 nvidia-smi
-
-TensorBoard (in neuem Terminal):
-  source venv/bin/activate
-  tensorboard --logdir outputs/finetuning
-
-Training Logs:
-  tail -f outputs/finetuning/trainer_log.txt
-
-Speicherplatz:
-  df -h /workspace
+GPU-Auslastung: watch -n 1 nvidia-smi
+TensorBoard: tensorboard --logdir outputs/finetuning
+Training Logs: tail -f outputs/finetuning/trainer_log.txt
+Speicherplatz: df -h /workspace
 "
