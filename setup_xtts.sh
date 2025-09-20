@@ -30,27 +30,39 @@ if [ ! -d "venv" ]; then
 fi
 source venv/bin/activate
 
-# 4) Pip upgraden
-pip install --upgrade pip setuptools wheel
+# 3) Virtuelle Umgebung erstellen
+echo "🐍 Erstelle Python 3.10 Virtual Environment..."
+if [ ! -d "venv" ]; then
+  python3.10 -m venv venv
+fi
+source venv/bin/activate
 
-# 5) PyTorch mit CUDA 12.1 installieren (für RTX 4090 optimiert)
+# 4) Pip upgraden und kritische Pakete installieren (GEÄNDERT)
+echo "📦 Installiere Basis-Pakete..."
+pip install --upgrade pip setuptools wheel
+pip install "numpy>=1.25.2,<2.0"
+pip install numba>=0.59.0
+pip install transformers==4.35.2 tokenizers==0.15.0
+
+# 5) PyTorch mit CUDA 12.1 installieren
 echo "🔥 Installiere PyTorch für RTX 4090..."
 pip install torch==2.2.1 torchvision==0.17.1 torchaudio==2.2.1 --index-url https://download.pytorch.org/whl/cu121
 
-# 6) Transformers Version installieren (kompatibel mit PyTorch 2.1.1)
-echo "🔄 Installiere kompatible Transformers Version..."
-pip install transformers==4.35.2 "numpy>=1.25.2,<2.0" tokenizers==0.15.0
+# 6) Coqui TTS installieren (GEÄNDERTE REIHENFOLGE)
+echo "🔧 Installiere Coqui TTS..."
+pip install coqui-tts==0.26.0
 
-# 7) Coqui TTS Repository klonen (Community Fork)
-cd ${WORKSPACE}
-if [ ! -d "TTS" ]; then
-  echo "📚 Klone Coqui TTS Repository..."
-  git clone https://github.com/idiap/coqui-ai-TTS.git TTS
-  cd TTS
-  git checkout main
+# 7) Gefilterte Requirements installieren (GEÄNDERT)
+cd ${PROJECT_DIR}
+if [ -f "requirements_all.txt" ]; then
+  echo "📋 Installiere restliche Requirements..."
+  grep -v "numpy\|coqui-tts\|numba" requirements_all.txt > requirements_filtered.txt
+  echo "tensorboard>=2.11.0" >> requirements_filtered.txt
+  echo "deepspeed>=0.10.0" >> requirements_filtered.txt
+  pip install -r requirements_filtered.txt
 else
-  cd TTS
-  git pull origin main
+  echo "❌ requirements_all.txt nicht gefunden!"
+  exit 1
 fi
 
 # 8) TTS installieren
