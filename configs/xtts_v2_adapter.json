@@ -14,16 +14,16 @@
   },
   "audio": {
     "sample_rate": 24000,
-  "output_sample_rate": 24000,
-  "hop_length": 256,
-  "win_length": 1024,
-  "fft_size": 1024,
-  "mel_fmin": 0,
-  "mel_fmax": 8000,
-  "num_mels": 80,
-  "dvae_sample_rate": 24000,
-  "frame_length_ms": 42.67,
-  "frame_shift_ms": 10.67
+    "output_sample_rate": 24000,
+    "hop_length": 256,
+    "win_length": 1024,
+    "fft_size": 1024,
+    "mel_fmin": 0,
+    "mel_fmax": 8000,
+    "num_mels": 80,
+    "dvae_sample_rate": 24000,
+    "frame_length_ms": 42.67,
+    "frame_shift_ms": 10.67
   },
   "test_sentences": [
     ["Dies ist ein Test mit der angepassten Stimme.", "speaker3", "de", null],
@@ -42,6 +42,10 @@
       "meta_file_val": null,
       "language": "de"
     }
+  ],
+  "test_sentences": [
+    ["Dies ist ein Test der geklonten Stimme.", "speaker3", "de"],
+    ["Die Sprachqualität sollte sehr natürlich klingen.", "speaker3", "de"]
   ],
   "batch_size": 2,
   "batch_group_size": 4,
@@ -89,5 +93,6 @@
   "phoneme_language": "de",
   "text_cleaner": "german_cleaners",
   "phonemizer": "gruut",
-  "save_best_after": 1000
+  "save_best_after": 1000,
+  "eval_split_size": 0.0357  // Neu: Für kleine Datasets (1 Eval-Sample bei 27 Total)
 }
