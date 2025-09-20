@@ -88,19 +88,38 @@ with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
 config = XttsConfig()
 config.from_dict(config_data)  # Lädt alle Werte aus der JSON
 
+# Debug: Überprüfe geladene Audio-Config
+print("Debug: Geladene Audio Config:", config.audio.__dict__ if hasattr(config.audio, '__dict__') else config.audio)
+
+# Debug: Überprüfe eval_split_size
+print("Debug: eval_split_size:", config.eval_split_size)
+
 # Überschreibe pfadspezifische Einstellungen
 config.output_path = "/workspace/xtts_v2/outputs/finetuning"
 config.datasets[0].meta_file_train = "/workspace/xtts_v2/outputs/preprocessed/metadata.csv"
 
-# Audio Processor
-ap = AudioProcessor.init_from_config(config)
+# Audio Processor direkt initialisieren (um TypeError zu umgehen)
+ap = AudioProcessor(
+    sample_rate=24000,
+    output_sample_rate=24000,
+    hop_length=256,
+    win_length=1024,
+    fft_size=1024,
+    mel_fmin=0,
+    mel_fmax=8000,
+    num_mels=80,
+    dvae_sample_rate=24000,
+    frame_length_ms=42.67,
+    frame_shift_ms=10.67
+)
+print("Debug: AudioProcessor initialisiert mit:", ap.__dict__)
 
 # Lade Trainings-Samples
 train_samples, eval_samples = load_tts_samples(
     config.datasets,
     eval_split=True,
     eval_split_max_size=config.eval_split_max_size,
-    eval_split_size=config.eval_split_size,
+    eval_split_size=config.eval_split_size  // Verwende den Wert aus JSON
 )
 
 print(f"📊 Trainings-Samples: {len(train_samples)}")
@@ -173,10 +192,10 @@ print("━━━━━━━━━━━━━━━━━━━━━━━━�
 trainer.fit()
 
 print("\n✅ Fine-Tuning abgeschlossen!")
-print(f"📁 Checkpoints gespeichert in: {OUTPUT_PATH}")
+print(f"📁 Checkpoints gespeichert in: {config.output_path}")
 PYTHON
 
-# 3. Inference Test Script
+# 3. Inference Test Script (unverändert, aber mit Debug)
 cat > test_finetuned_model.py <<'PYTHON'
 import torch
 import torchaudio
@@ -314,8 +333,7 @@ if os.path.exists(ref_audio):
         text='Dies ist ein Schnelltest ohne Fine-Tuning.',
         speaker_wav=ref_audio,
         language='de',
-        file_path='/workspace/xtts_v2/outputs/audio/quick_test.wav'
-    )
+        file_path='/workspace/xtts_v2/outputs/audio/quick_test.wav')
     print('✅ Test-Audio: outputs/audio/quick_test.wav')
 else:
     print('❌ Referenz-Audio nicht gefunden!')
