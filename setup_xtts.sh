@@ -7,7 +7,7 @@ echo "🚀 XTTS v2 Voice Cloning Setup für Vast.ai RTX 4090"
 WORKSPACE="/workspace"
 PROJECT_DIR="${WORKSPACE}/xtts_v2"
 
-# 1) System-Pakete installieren (mit deadsnakes PPA für Python 3.10)
+# 1) System-Pakete installieren
 echo "📦 Installiere System-Dependencies..."
 sudo add-apt-repository ppa:deadsnakes/ppa -y
 sudo apt-get update -qq && sudo apt-get install -y \
@@ -23,7 +23,7 @@ if [ ! -d "xtts_v2" ]; then
 fi
 cd ${PROJECT_DIR}
 
-# 3) Virtuelle Umgebung erstellen (Python 3.10)
+# 3) Virtuelle Umgebung erstellen
 echo "🐍 Erstelle Python 3.10 Virtual Environment..."
 if [ ! -d "venv" ]; then
   python3.10 -m venv venv
@@ -33,7 +33,7 @@ source venv/bin/activate
 # 4) Pip upgraden und kritische Pakete installieren
 echo "📦 Installiere Basis-Pakete..."
 pip install --upgrade pip setuptools wheel
-pip install setuptools<81
+pip install "setuptools<81"  # Korrigiert: Anführungszeichen hinzugefügt
 pip install "numpy>=1.25.2,<2.0"
 pip install numba>=0.59.0
 pip install transformers==4.35.2 tokenizers==0.15.0
@@ -66,7 +66,7 @@ mkdir -p ${PROJECT_DIR}/configs
 mkdir -p ${PROJECT_DIR}/outputs/checkpoints
 mkdir -p ${PROJECT_DIR}/outputs/audio
 mkdir -p ${PROJECT_DIR}/outputs/logs
-mkdir -p ${PROJECT_DIR}/scripts  # Für zukünftige Automationsskripte
+mkdir -p ${PROJECT_DIR}/scripts
 
 # 9) XTTS v2 Modell testen
 echo "⬇️ Teste XTTS v2 Modellladung..."
