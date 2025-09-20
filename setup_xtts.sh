@@ -30,16 +30,10 @@ if [ ! -d "venv" ]; then
 fi
 source venv/bin/activate
 
-# 3) Virtuelle Umgebung erstellen
-echo "🐍 Erstelle Python 3.10 Virtual Environment..."
-if [ ! -d "venv" ]; then
-  python3.10 -m venv venv
-fi
-source venv/bin/activate
-
-# 4) Pip upgraden und kritische Pakete installieren (GEÄNDERT)
+# 4) Pip upgraden und kritische Pakete installieren
 echo "📦 Installiere Basis-Pakete..."
 pip install --upgrade pip setuptools wheel
+pip install setuptools<81  // Neu: Pin gegen pkg_resources-Warnung
 pip install "numpy>=1.25.2,<2.0"
 pip install numba>=0.59.0
 pip install transformers==4.35.2 tokenizers==0.15.0
@@ -48,11 +42,11 @@ pip install transformers==4.35.2 tokenizers==0.15.0
 echo "🔥 Installiere PyTorch für RTX 4090..."
 pip install torch==2.2.1 torchvision==0.17.1 torchaudio==2.2.1 --index-url https://download.pytorch.org/whl/cu121
 
-# 6) Coqui TTS installieren (GEÄNDERTE REIHENFOLGE)
+# 6) Coqui TTS installieren
 echo "🔧 Installiere Coqui TTS..."
 pip install coqui-tts==0.26.0
 
-# 7) Gefilterte Requirements installieren (GEÄNDERT)
+# 7) Gefilterte Requirements installieren
 cd ${PROJECT_DIR}
 if [ -f "requirements_all.txt" ]; then
   echo "📋 Installiere restliche Requirements..."
@@ -65,25 +59,7 @@ else
   exit 1
 fi
 
-# 8) TTS installieren
-echo "🔧 Installiere Coqui TTS..."
-pip install coqui-tts==0.26.0
-
-# 9) Gefilterte Requirements installieren
-cd ${PROJECT_DIR}
-if [ -f "requirements_all.txt" ]; then
-  grep -v "coqui-tts" requirements_all.txt > requirements_filtered.txt
-  echo "tensorboard>=2.11.0" >> requirements_filtered.txt
-  echo "deepspeed>=0.10.0" >> requirements_filtered.txt
-  grep -v "numpy" requirements_all.txt > requirements_filtered.txt
-  echo "numpy>=1.25.2,<2.0" >> requirements_filtered.txt
-  pip install -r requirements_filtered.txt
-else
-  echo "❌ requirements_all.txt nicht gefunden! Bitte sicherstellen, dass es im ${PROJECT_DIR} liegt."
-  exit 1
-fi
-
-# 10) Verzeichnisstruktur erstellen
+# 8) Verzeichnisstruktur erstellen
 echo "📁 Erstelle Verzeichnisstruktur..."
 mkdir -p ${PROJECT_DIR}/data/speaker3
 mkdir -p ${PROJECT_DIR}/configs
@@ -92,7 +68,7 @@ mkdir -p ${PROJECT_DIR}/outputs/audio
 mkdir -p ${PROJECT_DIR}/outputs/logs
 mkdir -p ${PROJECT_DIR}/scripts  # Für zukünftige Automationsskripte
 
-# 11) XTTS v2 Modell testen
+# 9) XTTS v2 Modell testen
 echo "⬇️ Teste XTTS v2 Modellladung..."
 python -c "
 from TTS.api import TTS
