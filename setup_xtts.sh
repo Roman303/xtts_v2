@@ -33,7 +33,7 @@ source venv/bin/activate
 # 4) Pip upgraden und kritische Pakete installieren
 echo "📦 Installiere Basis-Pakete..."
 pip install --upgrade pip setuptools wheel
-pip install setuptools<81  // Neu: Pin gegen pkg_resources-Warnung
+pip install setuptools<81
 pip install "numpy>=1.25.2,<2.0"
 pip install numba>=0.59.0
 pip install transformers==4.35.2 tokenizers==0.15.0
